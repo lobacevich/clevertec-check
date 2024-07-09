@@ -1,7 +1,6 @@
 package main.java.ru.clevertec.check;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,7 +10,6 @@ import java.util.List;
 public class CsvWriter {
 
     private static final CsvWriter INSTANCE = new CsvWriter();
-    private static final String RESULT_PATH = "./result.csv";
 
     private CsvWriter() {
     }
@@ -20,11 +18,12 @@ public class CsvWriter {
         return INSTANCE;
     }
 
-    public void writeDataToCsv(String data) {
-        try (FileWriter writer = new FileWriter(RESULT_PATH)) {
+    public void writeDataToCsv(String data, String filePath) throws InternalServerErrorException {
+        try (FileWriter writer = new FileWriter(filePath)) {
             writer.write(data);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("CsvWriter: Error load data");
+            throw new InternalServerErrorException();
         }
     }
 
@@ -40,9 +39,8 @@ public class CsvWriter {
             }
             return data;
         } catch (IOException e) {
-            System.out.println("Error load data");
+            System.out.println("CsvWriter: Error load data");
             throw new InternalServerErrorException();
         }
-
     }
 }

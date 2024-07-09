@@ -11,6 +11,8 @@ public class ArgumentParser {
     private final List<Order> orders = new ArrayList<>();
     private String cardNumber;
     private BigDecimal balance;
+    private String pathToFile;
+    private String saveToFile;
 
     private ArgumentParser() {
     }
@@ -25,19 +27,27 @@ public class ArgumentParser {
                 cardNumber = arg.split("=")[1];
             } else if (arg.startsWith("balanceDebitCard=")) {
                 balance = new BigDecimal(arg.split("=")[1]);
+            } else if (arg.startsWith("pathToFile=")) {
+                pathToFile = arg.split("=")[1];
+            } else if (arg.startsWith("saveToFile=")) {
+                saveToFile = arg.split("=")[1];
             } else if (arg.contains("-")) {
                 addOrCreateOrder(arg);
             } else {
-                System.out.println("Invalid argument " + arg);
+                System.out.println("Parser: invalid argument " + arg);
                 throw new BadRequestException();
             }
         }
         if (orders.isEmpty()) {
-            System.out.println("In the parameter set must be at least one product. Refactor validator");
+            System.out.println("Parser: in the parameter set must be at least one product.");
             throw new BadRequestException();
         }
         if (balance == null) {
-            System.out.println("In the parameter set must be a balance of debit card. Refactor validator");
+            System.out.println("Parser: in the parameter set must be a balance of debit card.");
+            throw new BadRequestException();
+        }
+        if (pathToFile == null) {
+            System.out.println("Parser: in the parameter set must be a path to file.");
             throw new BadRequestException();
         }
     }
@@ -77,5 +87,13 @@ public class ArgumentParser {
 
     public BigDecimal getBalance() {
         return balance;
+    }
+
+    public String getPathToFile() {
+        return pathToFile;
+    }
+
+    public String getSaveToFile() {
+        return saveToFile;
     }
 }

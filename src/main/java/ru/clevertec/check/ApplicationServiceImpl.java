@@ -9,9 +9,10 @@ import java.util.Optional;
 public class ApplicationServiceImpl implements ApplicationService {
 
     private static final ApplicationService INSTANCE = new ApplicationServiceImpl();
-    private final static Integer OTHER_CARD_DISCOUNT = 2;
-    private final static Integer WHOLE_SALE_DISCOUNT = 10;
-    private final static Integer WHOLE_SALE_AMOUNT = 5;
+    private static final Integer OTHER_CARD_DISCOUNT = 2;
+    private static final Integer WHOLE_SALE_DISCOUNT = 10;
+    private static final Integer WHOLE_SALE_AMOUNT = 5;
+    private static final String RESULT_PATH = "./result.csv";
     private final ProductDao productDao = ProductDaoImpl.getINSTANCE();
     private final CardDao cardDao = CardDaoImpl.getINSTANCE();
     private final ArgumentParser parser = ArgumentParser.getINSTANCE();
@@ -54,7 +55,13 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public void printCheck(String check) {
-        writer.writeDataToCsv(check);
+        try {
+            writer.writeDataToCsv(check, parser.getSaveToFile() != null ?
+                    parser.getSaveToFile() : RESULT_PATH);
+        } catch (InternalServerErrorException e) {
+            System.out.println("Service: can't write to file from args");
+            writer.writeDataToCsv(check, RESULT_PATH);
+        }
     }
 
     private void setDiscountCard() {
@@ -91,11 +98,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (optProduct.isPresent()) {
             product = optProduct.get();
         } else {
-            System.out.println("Product with id " + order.getId() + " not found");
+            System.out.println("Service: product with id " + order.getId() + " not found");
             throw new BadRequestException();
         }
         if (order.getQuantity() > product.quantity()) {
-            System.out.println("not enough goods " + product.description() +
+            System.out.println("Service: not enough goods " + product.description() +
                     ", on order " + order.getQuantity() + ", in stock " + product.quantity());
             throw new BadRequestException();
         }
@@ -157,7 +164,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private void isEnoughMoney() throws NotEnoughMoneyException {
         if (sumToPay.compareTo(parser.getBalance()) > 0) {
-            System.out.println("to pay - " + sumToPay + "your balance is " + parser.getBalance());
+            System.out.println("to pay - " + sumToPay + ", your balance is " + parser.getBalance());
             throw new NotEnoughMoneyException();
         }
     }

@@ -1,6 +1,6 @@
 package main.java.ru.clevertec.check;
 
-public class InternalServerErrorException extends Exception {
+public class InternalServerErrorException extends RuntimeException {
 
     @Override
     public String getMessage() {

@@ -9,6 +9,7 @@ public class CardDaoImpl implements CardDao {
     private static final String CARDS_PATH = "./src/main/resources/discountCards.csv";
     private final List<DiscountCard> cards = new ArrayList<>();
     private final CsvWriter writer = CsvWriter.getInstance();
+    private final DiscountCardFactory factory = DiscountCardFactory.getINSTANCE();
 
     private CardDaoImpl() {
     }
@@ -20,10 +21,7 @@ public class CardDaoImpl implements CardDao {
     @Override
     public void loadCards() throws InternalServerErrorException {
         for (String line : writer.loadListDataFromCsv(CARDS_PATH)) {
-            String[] data = line.split(";");
-            DiscountCard card = new DiscountCard(Integer.parseInt(data[0]),
-                    data[1], Integer.parseInt(data[2]));
-            cards.add(card);
+            cards.add(factory.createDiscountCard(line.split(";")));
         }
     }
 
