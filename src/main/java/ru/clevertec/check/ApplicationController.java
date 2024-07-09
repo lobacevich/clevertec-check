@@ -16,8 +16,8 @@ public class ApplicationController {
     public void generateCheck(String[] args) {
         StringBuilder builder = new StringBuilder();
         try {
-            service.loadData();
             validator.validateArgs(args);
+            service.loadData();
             service.parseArgs(args);
             service.generateCheck(builder);
             service.printCheck(builder.toString());

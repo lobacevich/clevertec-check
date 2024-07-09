@@ -9,8 +9,6 @@ public class ArgumentParser {
 
     private static final ArgumentParser INSTANCE = new ArgumentParser();
     private final List<Order> orders = new ArrayList<>();
-    private String cardNumber;
-    private BigDecimal balance;
 
     private ArgumentParser() {
     }
@@ -19,7 +17,9 @@ public class ArgumentParser {
         return INSTANCE;
     }
 
-    public void parseArguments(String[] args) throws BadRequestException {
+    public CheckData parseArguments(String[] args) throws BadRequestException {
+        String cardNumber = null;
+        BigDecimal balance = null;
         for (String arg : args) {
             if (arg.startsWith("discountCard=")) {
                 cardNumber = arg.split("=")[1];
@@ -32,14 +32,11 @@ public class ArgumentParser {
                 throw new BadRequestException();
             }
         }
-        if (orders.isEmpty()) {
-            System.out.println("In the parameter set must be at least one product. Refactor validator");
-            throw new BadRequestException();
-        }
-        if (balance == null) {
-            System.out.println("In the parameter set must be a balance of debit card. Refactor validator");
-            throw new BadRequestException();
-        }
+        return new CheckData.Builder()
+                .orders(orders)
+                .discountCardNumber(cardNumber)
+                .balance(balance)
+                .build();
     }
 
     private void addOrCreateOrder(String arg) throws BadRequestException {
@@ -65,17 +62,5 @@ public class ArgumentParser {
         return orders.stream()
                 .filter(x -> x.getId() == id)
                 .findFirst();
-    }
-
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    public String getCardNumber() {
-        return cardNumber;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
     }
 }

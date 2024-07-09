@@ -24,7 +24,7 @@ public class CsvWriter {
         try (FileWriter writer = new FileWriter(RESULT_PATH)) {
             writer.write(data);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException();
         }
     }
 

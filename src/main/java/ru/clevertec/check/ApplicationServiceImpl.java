@@ -16,6 +16,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final CardDao cardDao = CardDaoImpl.getINSTANCE();
     private final ArgumentParser parser = ArgumentParser.getINSTANCE();
     private final CsvWriter writer = CsvWriter.getInstance();
+    private CheckData checkData;
     private DiscountCard discountCard;
     private BigDecimal sumToPay;
 
@@ -36,14 +37,15 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public void parseArgs(String[] args) throws BadRequestException {
-        parser.parseArguments(args);
+        checkData = parser.parseArguments(args);
+        System.out.println(checkData);
     }
 
     @Override
     public void generateCheck(StringBuilder builder) throws BadRequestException, NotEnoughMoneyException {
         addDateTime(builder);
         setDiscountCard();
-        for (Order order : parser.getOrders()) {
+        for (Order order : checkData.getOrders()) {
             fillOrder(order);
         }
         addProductsToCheck(builder);
@@ -58,7 +60,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private void setDiscountCard() {
-        String discountCardNumber = parser.getCardNumber();
+        String discountCardNumber = checkData.getDiscountCardNumber();
         if (discountCardNumber != null) {
             Optional<DiscountCard> optDiscountCard = cardDao.getCards()
                     .stream()
@@ -107,7 +109,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private void addProductsToCheck(StringBuilder builder) {
         builder.append("\nQTY;DESCRIPTION;PRICE;DISCOUNT;TOTAL\n");
-        for (Order order : parser.getOrders()) {
+        for (Order order : checkData.getOrders()) {
             BigDecimal total = order.getPrice().multiply(BigDecimal.valueOf(order.getQuantity()))
                     .setScale(2, RoundingMode.HALF_UP);
             BigDecimal discount = total.multiply(BigDecimal.valueOf(order.getDiscount()))
@@ -136,10 +138,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private void addTotalSumToCheck(StringBuilder builder) {
-        BigDecimal total = parser.getOrders().stream()
+        BigDecimal total = checkData.getOrders().stream()
                 .map(x -> x.getPrice().multiply(BigDecimal.valueOf(x.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal totalDiscount = parser.getOrders().stream()
+        BigDecimal totalDiscount = checkData.getOrders().stream()
                 .map(x -> x.getPrice().multiply(BigDecimal.valueOf(x.getQuantity()))
                         .multiply(BigDecimal.valueOf(x.getDiscount()))
                         .divide(BigDecimal.valueOf(100))
@@ -156,8 +158,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private void isEnoughMoney() throws NotEnoughMoneyException {
-        if (sumToPay.compareTo(parser.getBalance()) > 0) {
-            System.out.println("to pay - " + sumToPay + ", your balance is " + parser.getBalance());
+        if (sumToPay.compareTo(checkData.getBalance()) > 0) {
+            System.out.println("to pay - " + sumToPay + ", your balance is " + checkData.getBalance());
             throw new NotEnoughMoneyException();
         }
     }
