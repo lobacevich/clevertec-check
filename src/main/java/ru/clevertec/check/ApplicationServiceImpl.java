@@ -9,9 +9,9 @@ import java.util.Optional;
 public class ApplicationServiceImpl implements ApplicationService {
 
     private static final ApplicationService INSTANCE = new ApplicationServiceImpl();
-    private final static Integer OTHER_CARD_DISCOUNT = 2;
-    private final static Integer WHOLE_SALE_DISCOUNT = 10;
-    private final static Integer WHOLE_SALE_AMOUNT = 5;
+    private static final Integer OTHER_CARD_DISCOUNT = 2;
+    private static final Integer WHOLE_SALE_DISCOUNT = 10;
+    private static final Integer WHOLE_SALE_AMOUNT = 5;
     private final ProductDao productDao = ProductDaoImpl.getINSTANCE();
     private final CardDao cardDao = CardDaoImpl.getINSTANCE();
     private final ArgumentParser parser = ArgumentParser.getINSTANCE();
@@ -157,7 +157,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private void isEnoughMoney() throws NotEnoughMoneyException {
         if (sumToPay.compareTo(parser.getBalance()) > 0) {
-            System.out.println("to pay - " + sumToPay + "your balance is " + parser.getBalance());
+            System.out.println("to pay - " + sumToPay + ", your balance is " + parser.getBalance());
             throw new NotEnoughMoneyException();
         }
     }

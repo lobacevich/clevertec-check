@@ -4,11 +4,17 @@ public class Validator {
 
     private static final String ID_PATTERN = "\\d+-\\d+";
     private static final String DISCOUNT_CARD_PATTERN = "discountCard=\\d{4}";
-    private static final String BALANCE_PATTERN = "balanceDebitCard=-?\\d+(\\.\\d+)?";
+    private static final String BALANCE_PATTERN = "balanceDebitCard=-?\\d+(\\.\\d{2})?";
+    private static final Validator INSTANCE = new Validator();
+
     private Validator() {
     }
 
-    public static void validateArgs(String[] args) throws BadRequestException {
+    public static Validator getINSTANCE() {
+        return INSTANCE;
+    }
+
+    public void validateArgs(String[] args) throws BadRequestException {
         validateId(args[0]);
         for (int i = 1; i < args.length - 1; i++) {
             if (args[i].contains("-")) {
@@ -43,7 +49,7 @@ public class Validator {
 
     private static void validateDiscountCard(String arg) throws BadRequestException {
         if (!arg.matches(DISCOUNT_CARD_PATTERN)) {
-            System.out.println("Invalid discount card format");
+            System.out.println("Invalid discount card format " + arg);
             throw new BadRequestException();
         }
     }
