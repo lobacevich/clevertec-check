@@ -1,0 +1,79 @@
+package ru.clevertec.check.validator;
+
+import ru.clevertec.check.exception.BadRequestException;
+
+public class Validator {
+
+    private static final String ID_PATTERN = "\\d+-\\d+";
+    private static final String DISCOUNT_CARD_PATTERN = "discountCard=\\d{4}";
+    private static final String BALANCE_PATTERN = "balanceDebitCard=-?\\d+(\\.\\d{2})?";
+    private static final String SAVE_TO_FILE_PATTERN = "saveToFile=\\./.*\\.csv";
+    private static final Validator INSTANCE = new Validator();
+
+    private Validator() {
+    }
+
+    public static Validator getINSTANCE() {
+        return INSTANCE;
+    }
+
+    public void validateArgs(String[] args) throws BadRequestException {
+        validateArg(args[0], ID_PATTERN);
+        for (int i = 1; i < args.length; i++) {
+            if (args[i].contains("-") && !args[i].contains("=-")) {
+                if (args[i - 1].contains("-") && !args[i - 1].contains("=-")) {
+                    validateArg(args[i], ID_PATTERN);
+                } else {
+                    throwBadRequestException();
+                }
+            } else if (args[i].startsWith("discountCard=")) {
+                if (args[i - 1].contains("-") && !args[i - 1].contains("=-")) {
+                    validateArg(args[i], DISCOUNT_CARD_PATTERN);
+                } else {
+                    throwBadRequestException();
+                }
+            } else if (args[i].startsWith("balanceDebitCard=")) {
+                if (args[i - 1].contains("-") && !args[i - 1].contains("=-") ||
+                        args[i - 1].startsWith("discountCard=")) {
+                    validateArg(args[i], BALANCE_PATTERN);
+                } else {
+                    throwBadRequestException();
+                }
+            } else if (args[i].startsWith("saveToFile=")) {
+                if (args[i - 1].startsWith("balanceDebitCard=")) {
+                    validateArg(args[i], SAVE_TO_FILE_PATTERN);
+                } else {
+                    throwBadRequestException();
+                }
+            } else if (args[i].startsWith("datasource.url=jdbc:postgresql:")) {
+                if (!args[i - 1].startsWith("saveToFile=")) {
+                    throwBadRequestException();
+                }
+            } else if (args[i].startsWith("datasource.username=")) {
+                if (!args[i - 1].startsWith("datasource.url=")) {
+                    throwBadRequestException();
+                }
+            } else if (args[i].startsWith("datasource.password=")) {
+                if (!args[i - 1].startsWith("datasource.username=")) {
+                    throwBadRequestException();
+                }
+            } else {
+                System.out.println("Validator: invalid argument format " + args[i] +
+                        " or invalid sequence of arguments");
+                throw new BadRequestException();
+            }
+        }
+    }
+
+    private void validateArg(String arg, String pattern) throws BadRequestException {
+        if (!arg.matches(pattern)) {
+            System.out.println("Validator: incorrect format of argument: " + arg);
+            throw new BadRequestException();
+        }
+    }
+
+    private void throwBadRequestException() throws BadRequestException {
+        System.out.println("Validator: invalid sequence of arguments");
+        throw new BadRequestException();
+    }
+}
