@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface ProductDao {
 
-    void loadProducts() throws InternalServerErrorException;
+    void loadProducts(String pahToFile) throws BadRequestException;
 
     List<Product> getProducts();
 }

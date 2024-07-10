@@ -19,7 +19,7 @@ public class CardDaoImpl implements CardDao {
     }
 
     @Override
-    public void loadCards() throws InternalServerErrorException {
+    public void loadCards() throws BadRequestException {
         for (String line : writer.loadListDataFromCsv(CARDS_PATH)) {
             cards.add(factory.createDiscountCard(line.split(";")));
         }

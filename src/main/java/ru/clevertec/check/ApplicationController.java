@@ -16,13 +16,13 @@ public class ApplicationController {
     public void generateCheck(String[] args) {
         StringBuilder builder = new StringBuilder();
         try {
+            service.setSaveToFile(validator.getSaveToFile(args));
             validator.validateArgs(args);
-            service.loadData();
             service.parseArgs(args);
+            service.loadData();
             service.generateCheck(builder);
             service.printCheck(builder.toString());
-            System.out.println("\n" + builder);
-        } catch (BadRequestException | NotEnoughMoneyException | InternalServerErrorException e) {
+        } catch (BadRequestException | NotEnoughMoneyException e) {
             service.printCheck(e.getMessage());
             System.out.println(e.getMessage());
         }

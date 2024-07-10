@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface CardDao {
 
-    void loadCards() throws InternalServerErrorException;
+    void loadCards() throws BadRequestException;
 
     List<DiscountCard> getCards();
 

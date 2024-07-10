@@ -9,10 +9,6 @@ public class ArgumentParser {
 
     private static final ArgumentParser INSTANCE = new ArgumentParser();
     private final List<Order> orders = new ArrayList<>();
-    private String cardNumber;
-    private BigDecimal balance;
-    private String pathToFile;
-    private String saveToFile;
 
     private ArgumentParser() {
     }
@@ -21,7 +17,10 @@ public class ArgumentParser {
         return INSTANCE;
     }
 
-    public void parseArguments(String[] args) throws BadRequestException {
+    public CheckData parseArguments(String[] args) throws BadRequestException {
+        String cardNumber = null;
+        BigDecimal balance = null;
+        String pathToFile = null;
         for (String arg : args) {
             if (arg.startsWith("discountCard=")) {
                 cardNumber = arg.split("=")[1];
@@ -30,7 +29,6 @@ public class ArgumentParser {
             } else if (arg.startsWith("pathToFile=")) {
                 pathToFile = arg.split("=")[1];
             } else if (arg.startsWith("saveToFile=")) {
-                saveToFile = arg.split("=")[1];
             } else if (arg.contains("-")) {
                 addOrCreateOrder(arg);
             } else {
@@ -50,6 +48,12 @@ public class ArgumentParser {
             System.out.println("Parser: in the parameter set must be a path to file.");
             throw new BadRequestException();
         }
+        return new CheckData.Builder()
+                .orders(orders)
+                .discountCardNumber(cardNumber)
+                .balance(balance)
+                .pathToFile(pathToFile)
+                .build();
     }
 
     private void addOrCreateOrder(String arg) throws BadRequestException {
@@ -75,25 +79,5 @@ public class ArgumentParser {
         return orders.stream()
                 .filter(x -> x.getId() == id)
                 .findFirst();
-    }
-
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    public String getCardNumber() {
-        return cardNumber;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public String getPathToFile() {
-        return pathToFile;
-    }
-
-    public String getSaveToFile() {
-        return saveToFile;
     }
 }

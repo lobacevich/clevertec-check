@@ -13,7 +13,7 @@ public class ProductFactory {
         return INSTANCE;
     }
 
-    public Product createProduct(String[] data) throws InternalServerErrorException {
+    public Product createProduct(String[] data) throws BadRequestException {
         try {
             BigDecimal price = new BigDecimal(data[2].replace(',', '.'));
             return new Product(Integer.parseInt(data[0]),
@@ -21,7 +21,7 @@ public class ProductFactory {
                     Boolean.parseBoolean(data[4]));
         } catch (Exception e) {
             System.out.println("ProductFactory: can't create product, incorrect product data format");
-            throw new InternalServerErrorException();
+            throw new BadRequestException();
         }
     }
 }

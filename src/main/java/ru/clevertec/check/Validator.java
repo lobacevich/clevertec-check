@@ -18,7 +18,7 @@ public class Validator {
 
     public void validateArgs(String[] args) throws BadRequestException {
         validateArg(args[0], ID_PATTERN);
-        for (int i = 1; i < args.length; i++) {
+        for (int i = 1; i < args.length - 1; i++) {
             if (args[i].contains("-") && !args[i].contains("=-")) {
                 if (args[i - 1].contains("-") && !args[i - 1].contains("=-")) {
                     validateArg(args[i], ID_PATTERN);
@@ -44,18 +44,17 @@ public class Validator {
                 } else {
                     throwBadRequestException();
                 }
-            } else if (args[i].startsWith("saveToFile=")) {
-                if (args[i - 1].startsWith("pathToFile=")) {
-                    validateArg(args[i], SAVE_TO_FILE_PATTERN);
-                } else {
-                    throwBadRequestException();
-                }
             } else {
                 System.out.println("Validator: invalid argument format " + args[i] +
                         " or invalid sequence of arguments");
                 throw new BadRequestException();
             }
         }
+    }
+
+    public String getSaveToFile(String[] args) throws BadRequestException {
+        validateArg(args[args.length - 1], SAVE_TO_FILE_PATTERN);
+        return args[args.length - 1];
     }
 
     private void validateArg(String arg, String pattern) throws BadRequestException {
