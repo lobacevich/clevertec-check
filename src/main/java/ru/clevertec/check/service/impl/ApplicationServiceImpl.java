@@ -1,19 +1,18 @@
 package ru.clevertec.check.service.impl;
 
-import ru.clevertec.check.parser.ArgumentParser;
-import ru.clevertec.check.exception.BadRequestException;
-import ru.clevertec.check.db.Connect;
 import ru.clevertec.check.csv.CsvWriter;
-import ru.clevertec.check.entity.DiscountCard;
 import ru.clevertec.check.dao.DiscountCardDao;
+import ru.clevertec.check.dao.ProductDao;
 import ru.clevertec.check.dao.impl.DiscountCardDaoImpl;
+import ru.clevertec.check.dao.impl.ProductDaoImpl;
+import ru.clevertec.check.entity.CheckData;
+import ru.clevertec.check.entity.DiscountCard;
+import ru.clevertec.check.entity.Order;
+import ru.clevertec.check.entity.Product;
+import ru.clevertec.check.exception.BadRequestException;
 import ru.clevertec.check.exception.InternalServerErrorException;
 import ru.clevertec.check.exception.NotEnoughMoneyException;
-import ru.clevertec.check.entity.Order;
-import ru.clevertec.check.entity.ParsedArgs;
-import ru.clevertec.check.entity.Product;
-import ru.clevertec.check.dao.ProductDao;
-import ru.clevertec.check.dao.impl.ProductDaoImpl;
+import ru.clevertec.check.parser.ArgumentParser;
 import ru.clevertec.check.service.ApplicationService;
 
 import java.math.BigDecimal;
@@ -34,7 +33,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private DiscountCardDao cardDao = DiscountCardDaoImpl.getINSTANCE();
     private ArgumentParser parser = ArgumentParser.getINSTANCE();
     private CsvWriter writer = CsvWriter.getInstance();
-    private ParsedArgs parsedArgs;
+    private CheckData parsedArgs;
     private DiscountCard discountCard;
     private BigDecimal sumToPay;
     private String saveToFile;
@@ -90,12 +89,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         } else {
             throw new BadRequestException();
         }
-    }
-
-    @Override
-    public void createConnection() {
-        Connect.createConnection(parsedArgs.getDatasourceUrl(), parsedArgs.getDatasourceUserName(),
-                parsedArgs.getDatasourcePassword());
     }
 
     private void setDiscountCard() throws BadRequestException {

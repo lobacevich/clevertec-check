@@ -34,7 +34,6 @@ class ApplicationControllerTest {
         verify(applicationService).setSaveToFile(ApplicationTestData.getArgs());
         verify(validator).validateArgs(ApplicationTestData.getArgs());
         verify(applicationService).parseArgs(ApplicationTestData.getArgs());
-        verify(applicationService).createConnection();
         verify(applicationService).generateCheck(any());
         verify(applicationService).printCheck(anyString());
 

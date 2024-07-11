@@ -10,7 +10,7 @@ import ru.clevertec.check.csv.CsvWriter;
 import ru.clevertec.check.dao.DiscountCardDao;
 import ru.clevertec.check.dao.ProductDao;
 import ru.clevertec.check.entity.DiscountCard;
-import ru.clevertec.check.entity.ParsedArgs;
+import ru.clevertec.check.entity.CheckData;
 import ru.clevertec.check.entity.Product;
 import ru.clevertec.check.exception.BadRequestException;
 import ru.clevertec.check.exception.NotEnoughMoneyException;
@@ -40,7 +40,7 @@ class ApplicationServiceImplTest {
     private ApplicationServiceImpl service;
 
     private final String[] args = ApplicationTestData.getArgs();
-    private final ParsedArgs parsedArgs = ApplicationTestData.getParsedArgs();
+    private final CheckData parsedArgs = ApplicationTestData.getParsedArgs();
     private final Product product = ApplicationTestData.getProduct();
     private final DiscountCard discountCard = ApplicationTestData.getDiscountCard();
     private final String checkString = ApplicationTestData.getCheckString();
@@ -83,15 +83,5 @@ class ApplicationServiceImplTest {
 
         verify(writer, times(1)).writeDataToCsv(checkString,
                 argSaveToFile.split("=")[1]);
-    }
-
-    @Test
-    void createConnectionShouldCallMethod() throws BadRequestException {
-        when(parser.parseArguments(args)).thenReturn(parsedArgs);
-
-        service.parseArgs(args);
-        service.createConnection();
-
-
     }
 }

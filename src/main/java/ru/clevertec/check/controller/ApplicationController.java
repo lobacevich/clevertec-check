@@ -25,7 +25,6 @@ public class ApplicationController {
             service.setSaveToFile(args);
             validator.validateArgs(args);
             service.parseArgs(args);
-            service.createConnection();
             service.generateCheck(builder);
             service.printCheck(builder.toString());
         } catch (BadRequestException | NotEnoughMoneyException e) {

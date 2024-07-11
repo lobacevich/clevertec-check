@@ -8,15 +8,18 @@ import java.sql.SQLException;
 
 public class Connect {
 
-    private static Connection CONNECTION;
+    private static final Connection CONNECTION;
 
     private Connect() {
     }
 
-    public static void createConnection(String url, String username, String password) {
+    static {
         try {
-            CONNECTION = DriverManager.getConnection(url, username, password);
-        } catch (SQLException e) {
+            CONNECTION = DriverManager.getConnection(System.getProperty("datasource.url"),
+                    System.getProperty("datasource.username"),
+                    System.getProperty("datasource.password"));
+        } catch (
+                SQLException e) {
             throw new InternalServerErrorException("Connection failed");
         }
     }

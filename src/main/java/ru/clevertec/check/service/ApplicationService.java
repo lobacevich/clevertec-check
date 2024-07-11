@@ -12,6 +12,4 @@ public interface ApplicationService {
     void printCheck(String check);
 
     void setSaveToFile(String[] args) throws BadRequestException;
-
-    void createConnection();
 }

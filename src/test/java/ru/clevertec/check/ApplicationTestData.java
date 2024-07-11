@@ -2,7 +2,7 @@ package ru.clevertec.check;
 
 import ru.clevertec.check.entity.DiscountCard;
 import ru.clevertec.check.entity.Order;
-import ru.clevertec.check.entity.ParsedArgs;
+import ru.clevertec.check.entity.CheckData;
 import ru.clevertec.check.entity.Product;
 
 import java.math.BigDecimal;
@@ -21,13 +21,10 @@ public class ApplicationTestData {
             10, true);
     private static final DiscountCard discountCard = new DiscountCard(1L, 1111,3);
     private static final Order order = new Order(1L, 5);
-    private static final ParsedArgs parsedArgs = new ParsedArgs.Builder()
+    private static final CheckData parsedArgs = new CheckData.Builder()
             .orders(Collections.singletonList(order))
             .discountCardNumber(1111)
             .balance(BigDecimal.valueOf(100))
-            .datasourceUrl("jdbc:postgresql://localhost:5432/postgres")
-            .datasourceUserName("postgres")
-            .datasourcePassword("postgres")
             .build();
     private static final String checkString =
             """
@@ -54,7 +51,7 @@ public class ApplicationTestData {
         return args;
     }
 
-    public static ParsedArgs getParsedArgs() {
+    public static CheckData getParsedArgs() {
         return parsedArgs;
     }
 
