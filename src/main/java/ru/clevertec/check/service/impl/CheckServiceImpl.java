@@ -2,7 +2,6 @@ package ru.clevertec.check.service.impl;
 
 import ru.clevertec.check.parser.ArgumentParser;
 import ru.clevertec.check.exception.BadRequestException;
-import ru.clevertec.check.db.Connect;
 import ru.clevertec.check.csv.CsvWriter;
 import ru.clevertec.check.entity.DiscountCard;
 import ru.clevertec.check.dao.DiscountCardDao;
@@ -10,11 +9,11 @@ import ru.clevertec.check.dao.impl.DiscountCardDaoImpl;
 import ru.clevertec.check.exception.InternalServerErrorException;
 import ru.clevertec.check.exception.NotEnoughMoneyException;
 import ru.clevertec.check.entity.Order;
-import ru.clevertec.check.entity.ParsedArgs;
+import ru.clevertec.check.entity.CheckData;
 import ru.clevertec.check.entity.Product;
 import ru.clevertec.check.dao.ProductDao;
 import ru.clevertec.check.dao.impl.ProductDaoImpl;
-import ru.clevertec.check.service.ApplicationService;
+import ru.clevertec.check.service.CheckService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -23,9 +22,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Optional;
 
-public class ApplicationServiceImpl implements ApplicationService {
+public class CheckServiceImpl implements CheckService {
 
-    private static final ApplicationService INSTANCE = new ApplicationServiceImpl();
+    private static final CheckService INSTANCE = new CheckServiceImpl();
     private static final Integer OTHER_CARD_DISCOUNT = 2;
     private static final Integer WHOLE_SALE_DISCOUNT = 10;
     private static final Integer WHOLE_SALE_AMOUNT = 5;
@@ -34,28 +33,28 @@ public class ApplicationServiceImpl implements ApplicationService {
     private DiscountCardDao cardDao = DiscountCardDaoImpl.getINSTANCE();
     private ArgumentParser parser = ArgumentParser.getINSTANCE();
     private CsvWriter writer = CsvWriter.getInstance();
-    private ParsedArgs parsedArgs;
+    private CheckData checkData;
     private DiscountCard discountCard;
     private BigDecimal sumToPay;
     private String saveToFile;
 
-    private ApplicationServiceImpl() {
+    private CheckServiceImpl() {
     }
 
-    public static ApplicationService getINSTANCE() {
+    public static CheckService getINSTANCE() {
         return INSTANCE;
     }
 
     @Override
     public void parseArgs(String[] args) throws BadRequestException {
-        parsedArgs = parser.parseArguments(args);
+        checkData = parser.parseArguments(args);
     }
 
     @Override
     public void generateCheck(StringBuilder builder) throws BadRequestException, NotEnoughMoneyException {
         addDateTime(builder);
         setDiscountCard();
-        for (Order order : parsedArgs.getOrders()) {
+        for (Order order : checkData.getOrders()) {
             fillOrder(order);
         }
         addProductsToCheck(builder);
@@ -92,23 +91,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
-    @Override
-    public void createConnection() {
-        Connect.createConnection(parsedArgs.getDatasourceUrl(), parsedArgs.getDatasourceUserName(),
-                parsedArgs.getDatasourcePassword());
-    }
-
     private void setDiscountCard() throws BadRequestException {
-        Integer discountCardNumber = parsedArgs.getDiscountCardNumber();
+        Integer discountCardNumber = checkData.getDiscountCardNumber();
         if (discountCardNumber != null) {
             Optional<DiscountCard> optDiscountCard = cardDao.getCardByCardNumber(discountCardNumber);
-            if (optDiscountCard.isPresent()) {
-                discountCard = optDiscountCard.get();
-            } else {
-                discountCard = new DiscountCard(null,
-                        discountCardNumber, OTHER_CARD_DISCOUNT);
-                cardDao.saveCard(discountCard);
-            }
+            discountCard = optDiscountCard.orElseGet(() -> new DiscountCard(null,
+                    discountCardNumber, OTHER_CARD_DISCOUNT));
         }
     }
 
@@ -122,7 +110,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private void fillOrder(Order order) throws BadRequestException {
         Product product;
-        Optional<Product> optProduct = productDao.getProductById(order.getId());
+        Optional<Product> optProduct = productDao.getEntityById(order.getId());
         if (optProduct.isPresent()) {
             product = optProduct.get();
         } else {
@@ -142,7 +130,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private void addProductsToCheck(StringBuilder builder) {
         builder.append("\nQTY;DESCRIPTION;PRICE;DISCOUNT;TOTAL\n");
-        for (Order order : parsedArgs.getOrders()) {
+        for (Order order : checkData.getOrders()) {
             BigDecimal total = order.getPrice().multiply(BigDecimal.valueOf(order.getQuantity()))
                     .setScale(2, RoundingMode.HALF_UP);
             BigDecimal discount = total.multiply(BigDecimal.valueOf(order.getDiscount()))
@@ -171,10 +159,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private void addTotalSumToCheck(StringBuilder builder) {
-        BigDecimal total = parsedArgs.getOrders().stream()
+        BigDecimal total = checkData.getOrders().stream()
                 .map(x -> x.getPrice().multiply(BigDecimal.valueOf(x.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal totalDiscount = parsedArgs.getOrders().stream()
+        BigDecimal totalDiscount = checkData.getOrders().stream()
                 .map(x -> x.getPrice().multiply(BigDecimal.valueOf(x.getQuantity()))
                         .multiply(BigDecimal.valueOf(x.getDiscount()))
                         .divide(BigDecimal.valueOf(100))
@@ -191,8 +179,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private void isEnoughMoney() throws NotEnoughMoneyException {
-        if (sumToPay.compareTo(parsedArgs.getBalance()) > 0) {
-            System.out.println("to pay - " + sumToPay + ", your balance is " + parsedArgs.getBalance());
+        if (sumToPay.compareTo(checkData.getBalance()) > 0) {
+            System.out.println("to pay - " + sumToPay + ", your balance is " + checkData.getBalance());
             throw new NotEnoughMoneyException();
         }
     }

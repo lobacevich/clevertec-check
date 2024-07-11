@@ -2,7 +2,7 @@ package ru.clevertec.check.parser;
 
 import ru.clevertec.check.exception.BadRequestException;
 import ru.clevertec.check.entity.Order;
-import ru.clevertec.check.entity.ParsedArgs;
+import ru.clevertec.check.entity.CheckData;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class ArgumentParser {
         return INSTANCE;
     }
 
-    public ParsedArgs parseArguments(String[] args) throws BadRequestException {
+    public CheckData parseArguments(String[] args) throws BadRequestException {
         Integer cardNumber = null;
         BigDecimal balance = null;
         String datasourceUrl = null;
@@ -33,7 +33,6 @@ public class ArgumentParser {
             } else if (arg.startsWith("balanceDebitCard=")) {
                 balance = new BigDecimal(arg.split("=")[1]);
             } else if (arg.startsWith("saveToFile=")) {
-
             } else if (arg.startsWith("datasource.url=")) {
                 datasourceUrl = arg.split("=")[1];
             } else if (arg.startsWith("datasource.username=")) {
@@ -47,13 +46,10 @@ public class ArgumentParser {
                 throw new BadRequestException();
             }
         }
-        return new ParsedArgs.Builder()
+        return new CheckData.Builder()
                 .orders(orders)
                 .discountCardNumber(cardNumber)
                 .balance(balance)
-                .datasourceUrl(datasourceUrl)
-                .datasourceUserName(datasourceUserName)
-                .datasourcePassword(datasourcePassword)
                 .build();
     }
 

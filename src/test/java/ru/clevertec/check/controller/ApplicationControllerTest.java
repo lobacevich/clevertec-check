@@ -8,7 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.clevertec.check.ApplicationTestData;
 import ru.clevertec.check.exception.BadRequestException;
 import ru.clevertec.check.exception.NotEnoughMoneyException;
-import ru.clevertec.check.service.ApplicationService;
+import ru.clevertec.check.service.CheckService;
 import ru.clevertec.check.validator.Validator;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verify;
 class ApplicationControllerTest {
 
     @Mock
-    private ApplicationService applicationService;
+    private CheckService applicationService;
 
     @Mock
     private Validator validator;
@@ -34,7 +34,6 @@ class ApplicationControllerTest {
         verify(applicationService).setSaveToFile(ApplicationTestData.getArgs());
         verify(validator).validateArgs(ApplicationTestData.getArgs());
         verify(applicationService).parseArgs(ApplicationTestData.getArgs());
-        verify(applicationService).createConnection();
         verify(applicationService).generateCheck(any());
         verify(applicationService).printCheck(anyString());
 

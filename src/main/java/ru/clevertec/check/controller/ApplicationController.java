@@ -1,7 +1,7 @@
 package ru.clevertec.check.controller;
 
-import ru.clevertec.check.service.ApplicationService;
-import ru.clevertec.check.service.impl.ApplicationServiceImpl;
+import ru.clevertec.check.service.CheckService;
+import ru.clevertec.check.service.impl.CheckServiceImpl;
 import ru.clevertec.check.exception.BadRequestException;
 import ru.clevertec.check.exception.NotEnoughMoneyException;
 import ru.clevertec.check.validator.Validator;
@@ -9,7 +9,7 @@ import ru.clevertec.check.validator.Validator;
 public class ApplicationController {
 
     private static final ApplicationController INSTANCE = new ApplicationController();
-    private ApplicationService service = ApplicationServiceImpl.getINSTANCE();
+    private CheckService service = CheckServiceImpl.getINSTANCE();
     private Validator validator = Validator.getINSTANCE();
 
     private ApplicationController() {
@@ -25,7 +25,6 @@ public class ApplicationController {
             service.setSaveToFile(args);
             validator.validateArgs(args);
             service.parseArgs(args);
-            service.createConnection();
             service.generateCheck(builder);
             service.printCheck(builder.toString());
         } catch (BadRequestException | NotEnoughMoneyException e) {

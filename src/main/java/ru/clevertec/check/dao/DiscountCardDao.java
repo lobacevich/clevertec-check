@@ -5,9 +5,7 @@ import ru.clevertec.check.exception.BadRequestException;
 
 import java.util.Optional;
 
-public interface DiscountCardDao {
-
-    void saveCard(DiscountCard card);
+public interface DiscountCardDao extends GenericDao<DiscountCard> {
 
     Optional<DiscountCard> getCardByCardNumber(Integer cardNumber) throws BadRequestException;
 }
